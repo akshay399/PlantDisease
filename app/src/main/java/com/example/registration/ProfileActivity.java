@@ -8,6 +8,7 @@ import androidx.activity.result.contract.ActivityResultContracts;
 import androidx.annotation.NonNull;
 import androidx.appcompat.app.AppCompatActivity;
 import android.Manifest;
+import android.content.ContentResolver;
 import android.content.ContentValues;
 import android.content.Intent;
 import android.content.pm.PackageManager;
@@ -19,9 +20,19 @@ import android.provider.MediaStore;
 //import androidx.v7.app.AppCompatActivity;
 import android.os.Bundle;
 import android.view.View;
+import android.webkit.MimeTypeMap;
 import android.widget.Button;
 import android.widget.ImageView;
 import android.widget.Toast;
+
+import com.google.android.gms.tasks.OnFailureListener;
+import com.google.android.gms.tasks.OnSuccessListener;
+import com.google.firebase.database.DatabaseReference;
+import com.google.firebase.database.FirebaseDatabase;
+import com.google.firebase.storage.FirebaseStorage;
+import com.google.firebase.storage.OnProgressListener;
+import com.google.firebase.storage.StorageReference;
+import com.google.firebase.storage.UploadTask;
 
 import retrofit2.Retrofit;
 import okhttp3.MediaType;
@@ -38,15 +49,22 @@ public class ProfileActivity extends AppCompatActivity {
     private static final int PERMISSION_CODE = 1000;
     private static final int IMAGE_CAPTURE_CODE = 1001;
     private static final int IMAGE_PICK_CODE = 1002;
+
+    //firebase objs
+    FirebaseDatabase database;
+    FirebaseStorage storage;
 //    private Bitmap thumbnail;
 
     Button mUploadBtn;
     Button mCaptureBtn;
-//    Button mUploadApiBtn;
+    Button mUploadFirebase;
     ImageView mImageView;
     ImageView temp;
     ActivityResultLauncher<String> mGetContent;
     Uri image_uri;
+    Uri firebaseUri;
+    private DatabaseReference root = FirebaseDatabase.getInstance().getReference("Image");
+    private StorageReference reference = FirebaseStorage.getInstance().getReference();
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -56,13 +74,16 @@ public class ProfileActivity extends AppCompatActivity {
         mImageView = findViewById(R.id.image_view);
         mCaptureBtn = findViewById(R.id.capture_image_btn);
         mUploadBtn = findViewById(R.id.upload_image_btn);
-//        mUploadApiBtn = findViewById(R.id.upload_api_btn);
+        mUploadFirebase = findViewById(R.id.upload_firebase);
 
-        //upload from gallery button click
+
         mGetContent = registerForActivityResult(new ActivityResultContracts.GetContent(), new ActivityResultCallback<Uri>() {
             @Override
             public void onActivityResult(Uri result) {
+                firebaseUri = result;
                 mImageView.setImageURI(result);
+                
+
             }
         });
         mUploadBtn.setOnClickListener(new View.OnClickListener() {
@@ -70,7 +91,25 @@ public class ProfileActivity extends AppCompatActivity {
             public void onClick(View v) {
                 mGetContent.launch("image/*");
             }
+
         });
+        mUploadFirebase.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                if(firebaseUri!=null){
+                    uploadToFirebase(firebaseUri);
+                }else{
+                    Toast.makeText(ProfileActivity.this, "Please select image", Toast.LENGTH_SHORT).show();
+                }
+            }
+        });
+
+
+
+
+
+
+
 
         //capture button click
         mCaptureBtn.setOnClickListener(new View.OnClickListener() {
@@ -164,6 +203,41 @@ public class ProfileActivity extends AppCompatActivity {
         }
     }
 
+    private void uploadToFirebase(Uri uri){
+        StorageReference fileRef = reference.child(System.currentTimeMillis() + "." + getFileExtension(uri));
+        fileRef.putFile(uri).addOnSuccessListener(new OnSuccessListener<UploadTask.TaskSnapshot>() {
+            @Override
+            public void onSuccess(UploadTask.TaskSnapshot taskSnapshot) {
+                fileRef.getDownloadUrl().addOnSuccessListener(new OnSuccessListener<Uri>() {
+                    @Override
+                    public void onSuccess(Uri uri) {
+                        Model model = new Model(uri.toString());
+                        String modelId =  root.push().getKey();
+                        root.child(modelId).setValue(model);
+
+                        Toast.makeText(ProfileActivity.this, "Uploaded successfully", Toast.LENGTH_SHORT).show();
+                    }
+                });
+            }
+        }).addOnProgressListener(new OnProgressListener<UploadTask.TaskSnapshot>() {
+            @Override
+            public void onProgress(@NonNull UploadTask.TaskSnapshot snapshot) {
+                Toast.makeText(ProfileActivity.this, "Uploading file to firebase", Toast.LENGTH_SHORT).show();
+            }
+        }).addOnFailureListener(new OnFailureListener() {
+            @Override
+            public void onFailure(@NonNull Exception e) {
+                Toast.makeText(ProfileActivity.this, "Uploading failed", Toast.LENGTH_SHORT).show();
+            }
+        });
+    }
+
+    private String getFileExtension(Uri mUri){
+        ContentResolver cr = getContentResolver();
+        MimeTypeMap mime = MimeTypeMap.getSingleton();
+        return mime.getExtensionFromMimeType(cr.getType(mUri));
+
+    }
 
 }
 
