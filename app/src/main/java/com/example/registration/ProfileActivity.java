@@ -1,7 +1,6 @@
 package com.example.registration;
 
 
-import androidx.activity.result.ActivityResult;
 import androidx.activity.result.ActivityResultCallback;
 import androidx.activity.result.ActivityResultLauncher;
 import androidx.activity.result.contract.ActivityResultContracts;
@@ -12,7 +11,6 @@ import android.content.ContentResolver;
 import android.content.ContentValues;
 import android.content.Intent;
 import android.content.pm.PackageManager;
-import android.graphics.Bitmap;
 import android.net.Uri;
 import android.os.Build;
 import android.provider.MediaStore;
@@ -33,17 +31,13 @@ import com.google.firebase.storage.FirebaseStorage;
 import com.google.firebase.storage.OnProgressListener;
 import com.google.firebase.storage.StorageReference;
 import com.google.firebase.storage.UploadTask;
-
-import java.util.HashMap;
+import com.google.gson.Gson;
+import com.google.gson.GsonBuilder;
 
 import retrofit2.Retrofit;
-import okhttp3.MediaType;
-import okhttp3.MultipartBody;
-import okhttp3.RequestBody;
 import retrofit2.Call;
 import retrofit2.Callback;
 import retrofit2.Response;
-import retrofit2.Retrofit;
 import retrofit2.converter.gson.GsonConverterFactory;
 
 public class ProfileActivity extends AppCompatActivity {
@@ -264,9 +258,19 @@ public class ProfileActivity extends AppCompatActivity {
 
 
             @Override
-            public void onResponse(Call<Model> call, Response<Model> response) {
+            public void onResponse(Call<Model> call, Response <Model> response) {
+
+                Gson gson = new GsonBuilder().setPrettyPrinting().create();
+                Model responseFromAPI = response.body();
 
                 System.out.println("Response received");
+                System.out.println(responseFromAPI.toString());
+
+                System.out.println(gson.toJson(response.body()));
+
+
+
+
 
 
 
