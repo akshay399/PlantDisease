@@ -34,6 +34,8 @@ import com.google.firebase.storage.UploadTask;
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
 
+import java.util.ArrayList;
+
 import retrofit2.Retrofit;
 import retrofit2.Call;
 import retrofit2.Callback;
@@ -62,6 +64,7 @@ public class ProfileActivity extends AppCompatActivity {
     Uri firebaseUri;
     private DatabaseReference root = FirebaseDatabase.getInstance().getReference("Image");
     private StorageReference reference = FirebaseStorage.getInstance().getReference();
+
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -210,8 +213,9 @@ public class ProfileActivity extends AppCompatActivity {
                 fileRef.getDownloadUrl().addOnSuccessListener(new OnSuccessListener<Uri>() {
                     @Override
                     public void onSuccess(Uri uri) {
-
-                        Model model = new Model(uri.toString());
+                        ArrayList Dis_sum = new ArrayList();
+                        ArrayList cure = new ArrayList();
+                        Model model = new Model(uri.toString(),"","","", Dis_sum , cure);
                         String modelId =  root.push().getKey();
                         root.child(modelId).setValue(model);
                         System.out.println(uri.toString());
@@ -248,11 +252,18 @@ public class ProfileActivity extends AppCompatActivity {
 
     public void callPUTDataMethod(String url) {
         System.out.println(url);
-        String baseurl = "http://192.168.0.105:3000/";
+        String baseurl = "https://farmers-assistant-backend.herokuapp.com/";
         Retrofit retrofit = new Retrofit.Builder()
                 .baseUrl(baseurl).addConverterFactory(GsonConverterFactory.create()).build();
         UploadApis retrofitAPI = retrofit.create(UploadApis.class);
-        Model model = new Model(url);
+        ArrayList Dis_sum = new ArrayList();
+        ArrayList cure = new ArrayList();
+        Model model = new Model(url,"","","", Dis_sum, cure);
+
+
+
+
+
         Call<Model> call = retrofitAPI.updateData(model);
         call.enqueue(new Callback<Model>() {
 
@@ -262,11 +273,15 @@ public class ProfileActivity extends AppCompatActivity {
 
                 Gson gson = new GsonBuilder().setPrettyPrinting().create();
                 Model responseFromAPI = response.body();
+                System.out.println(response.body().getCause());
+                System.out.println(response.body().getCrop());
 
-                System.out.println("Response received");
-                System.out.println(responseFromAPI.toString());
 
-                System.out.println(gson.toJson(response.body()));
+//                System.out.println("Response received");
+//                System.out.println(responseFromAPI.toString());
+//                System.out.println(response.body().getClass());
+
+//                System.out.println(gson.toJson(response.body().getClass()));
 
 
 
