@@ -1,20 +1,20 @@
 package com.example.registration;
 
-public class Model {
 
-    private String imageUrl;
-    public Model(){
+public  class Model{
 
-    }
-    public Model(String imageUrl){
-        this.imageUrl = imageUrl;
-    }
+private String imageUrl;
 
-    public String getImageUrl() {
+public Model(String imageUrl){
+        this.imageUrl=imageUrl;
+        }
+
+public String getImageUrl(){
         return imageUrl;
+        }
+
+public void setImageUrl(String imageUrl){
+        this.imageUrl=imageUrl;
+        }
     }
 
-    public void setImageUrl(String imageUrl) {
-        this.imageUrl = imageUrl;
-    }
-}

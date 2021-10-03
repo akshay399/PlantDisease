@@ -34,6 +34,8 @@ import com.google.firebase.storage.OnProgressListener;
 import com.google.firebase.storage.StorageReference;
 import com.google.firebase.storage.UploadTask;
 
+import java.util.HashMap;
+
 import retrofit2.Retrofit;
 import okhttp3.MediaType;
 import okhttp3.MultipartBody;
@@ -42,6 +44,7 @@ import retrofit2.Call;
 import retrofit2.Callback;
 import retrofit2.Response;
 import retrofit2.Retrofit;
+import retrofit2.converter.gson.GsonConverterFactory;
 
 public class ProfileActivity extends AppCompatActivity {
 
@@ -204,6 +207,8 @@ public class ProfileActivity extends AppCompatActivity {
     }
 
     private void uploadToFirebase(Uri uri){
+
+        System.out.println(uri.toString());
         StorageReference fileRef = reference.child(System.currentTimeMillis() + "." + getFileExtension(uri));
         fileRef.putFile(uri).addOnSuccessListener(new OnSuccessListener<UploadTask.TaskSnapshot>() {
             @Override
@@ -211,14 +216,22 @@ public class ProfileActivity extends AppCompatActivity {
                 fileRef.getDownloadUrl().addOnSuccessListener(new OnSuccessListener<Uri>() {
                     @Override
                     public void onSuccess(Uri uri) {
+
                         Model model = new Model(uri.toString());
                         String modelId =  root.push().getKey();
                         root.child(modelId).setValue(model);
+                        System.out.println(uri.toString());
+                        Toast.makeText(ProfileActivity.this, uri.toString(), Toast.LENGTH_SHORT).show();
+                        // put api upload code here
+                        callPUTDataMethod(uri.toString());
 
-                        Toast.makeText(ProfileActivity.this, "Uploaded successfully", Toast.LENGTH_SHORT).show();
+
+
                     }
+
                 });
             }
+
         }).addOnProgressListener(new OnProgressListener<UploadTask.TaskSnapshot>() {
             @Override
             public void onProgress(@NonNull UploadTask.TaskSnapshot snapshot) {
@@ -236,6 +249,37 @@ public class ProfileActivity extends AppCompatActivity {
         ContentResolver cr = getContentResolver();
         MimeTypeMap mime = MimeTypeMap.getSingleton();
         return mime.getExtensionFromMimeType(cr.getType(mUri));
+
+    }
+
+    public void callPUTDataMethod(String url) {
+        System.out.println(url);
+        String baseurl = "http://192.168.0.105:3000/";
+        Retrofit retrofit = new Retrofit.Builder()
+                .baseUrl(baseurl).addConverterFactory(GsonConverterFactory.create()).build();
+        UploadApis retrofitAPI = retrofit.create(UploadApis.class);
+        Model model = new Model(url);
+        Call<Model> call = retrofitAPI.updateData(model);
+        call.enqueue(new Callback<Model>() {
+
+
+            @Override
+            public void onResponse(Call<Model> call, Response<Model> response) {
+
+                System.out.println("Response received");
+
+
+
+            }
+
+            @Override
+            public void onFailure(Call<Model> call, Throwable t) {
+
+                System.out.println(t.getMessage());
+
+            }
+        });
+
 
     }
 
