@@ -218,8 +218,8 @@ public class ProfileActivity extends AppCompatActivity {
                         Model model = new Model(uri.toString(),"","","", Dis_sum , cure);
                         String modelId =  root.push().getKey();
                         root.child(modelId).setValue(model);
-                        System.out.println(uri.toString());
-                        Toast.makeText(ProfileActivity.this, uri.toString(), Toast.LENGTH_SHORT).show();
+//                        System.out.println(uri.toString());
+//                        Toast.makeText(ProfileActivity.this, uri.toString(), Toast.LENGTH_SHORT).show();
                         // put api upload code here
                         callPUTDataMethod(uri.toString());
 
@@ -256,12 +256,9 @@ public class ProfileActivity extends AppCompatActivity {
         Retrofit retrofit = new Retrofit.Builder()
                 .baseUrl(baseurl).addConverterFactory(GsonConverterFactory.create()).build();
         UploadApis retrofitAPI = retrofit.create(UploadApis.class);
-        ArrayList Dis_sum = new ArrayList();
+        ArrayList cause = new ArrayList();
         ArrayList cure = new ArrayList();
-        Model model = new Model(url,"","","", Dis_sum, cure);
-
-
-
+        Model model = new Model(url,"","","", cause, cure);
 
 
         Call<Model> call = retrofitAPI.updateData(model);
@@ -270,24 +267,36 @@ public class ProfileActivity extends AppCompatActivity {
 
             @Override
             public void onResponse(Call<Model> call, Response <Model> response) {
-
+//url, crop, disease, disease_summary, cause, cure
                 Gson gson = new GsonBuilder().setPrettyPrinting().create();
                 Model responseFromAPI = response.body();
-                System.out.println(response.body().getCause());
-                System.out.println(response.body().getCrop());
+//                System.out.println(response.body().getCause());
+//                System.out.println(response.body().getCure());
+//
+//                String crop =  response.body().getCrop()==null ? "Not Available" :  response.body().getCrop();
+//
+//                String cause =  response.body().getCause().toString()==null ? "Not Available" :  response.body().getCause().toString();
+//
+//                String cure =  response.body().getCure()==null ? "Not Available" :  response.body().getCure().toString();
+//                String disease = response.body().getDisease();
+                String crop = response.body().getCrop();
 
+                String cause = response.body().getCause().toString();
 
-//                System.out.println("Response received");
-//                System.out.println(responseFromAPI.toString());
-//                System.out.println(response.body().getClass());
+                String cure =   response.body().getCure().toString();
+                String disease =  response.body().getDisease();
+//                String disease_summary =  response.body().get().toString().isEmpty() ? "Not Available" :  response.body().getDisease();
 
-//                System.out.println(gson.toJson(response.body().getClass()));
+                String image = firebaseUri.toString();
+                System.out.println(crop + cause + disease + cure);
 
-
-
-
-
-
+                Intent intent =  new Intent(ProfileActivity.this, ResultActivity.class);
+                intent.putExtra("cause", cause);
+                intent.putExtra("cure", cure);
+                intent.putExtra("disease", disease);
+                intent.putExtra("crop", crop);
+                intent.putExtra("image", image);
+                startActivity(intent);
 
             }
 
