@@ -53,7 +53,7 @@ public class ProfileActivity extends AppCompatActivity {
     FirebaseDatabase database;
     FirebaseStorage storage;
 //    private Bitmap thumbnail;
-
+Button getLocation;
     Button mUploadBtn;
     Button mCaptureBtn;
     Button mUploadFirebase;
@@ -75,6 +75,14 @@ public class ProfileActivity extends AppCompatActivity {
         mCaptureBtn = findViewById(R.id.capture_image_btn);
         mUploadBtn = findViewById(R.id.upload_image_btn);
         mUploadFirebase = findViewById(R.id.upload_firebase);
+        getLocation = findViewById(R.id.getLocation);
+
+        getLocation.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                startActivity(new Intent(ProfileActivity.this, MapsActivity.class));
+            }
+        });
 
 
         mGetContent = registerForActivityResult(new ActivityResultContracts.GetContent(), new ActivityResultCallback<Uri>() {
