@@ -70,7 +70,6 @@ Button getLocation;
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_profile);
-
         mImageView = findViewById(R.id.image_view);
         mCaptureBtn = findViewById(R.id.capture_image_btn);
         mUploadBtn = findViewById(R.id.upload_image_btn);
@@ -90,8 +89,6 @@ Button getLocation;
             public void onActivityResult(Uri result) {
                 firebaseUri = result;
                 mImageView.setImageURI(result);
-                
-
             }
         });
         mUploadBtn.setOnClickListener(new View.OnClickListener() {
@@ -153,12 +150,6 @@ Button getLocation;
         toast.show();
     }
 
-//    private void pickImageFromGallery() {
-//        Intent intent = new Intent(Intent.ACTION_PICK);
-//        intent.setType("image/*");
-//        startActivityForResult(intent, IMAGE_PICK_CODE);
-//    }
-//reial push
     private void openCamera() {
         ContentValues values = new ContentValues();
         values.put(MediaStore.Images.Media.TITLE, "New Picture");
@@ -196,12 +187,6 @@ Button getLocation;
     @Override
     protected void onActivityResult(int requestCode, int resultCode, Intent data) {
         super.onActivityResult(requestCode, resultCode, data);
-        //PICK IMAGE GALLERY
-//        if(resultCode == RESULT_OK && requestCode==IMAGE_PICK_CODE){
-//            mImageView.setImageURI(data.getData());
-//        }
-
-        //called when image was captured from camera
 
 
         if (resultCode == RESULT_OK) {
@@ -230,7 +215,6 @@ Button getLocation;
 //                        Toast.makeText(ProfileActivity.this, uri.toString(), Toast.LENGTH_SHORT).show();
                         // put api upload code here
                         callPUTDataMethod(uri.toString());
-
 
 
                     }
@@ -267,34 +251,18 @@ Button getLocation;
         ArrayList cause = new ArrayList();
         ArrayList cure = new ArrayList();
         Model model = new Model(url,"","","", cause, cure);
-
-
         Call<Model> call = retrofitAPI.updateData(model);
         call.enqueue(new Callback<Model>() {
 
 
             @Override
             public void onResponse(Call<Model> call, Response <Model> response) {
-//url, crop, disease, disease_summary, cause, cure
                 Gson gson = new GsonBuilder().setPrettyPrinting().create();
                 Model responseFromAPI = response.body();
-//                System.out.println(response.body().getCause());
-//                System.out.println(response.body().getCure());
-//
-//                String crop =  response.body().getCrop()==null ? "Not Available" :  response.body().getCrop();
-//
-//                String cause =  response.body().getCause().toString()==null ? "Not Available" :  response.body().getCause().toString();
-//
-//                String cure =  response.body().getCure()==null ? "Not Available" :  response.body().getCure().toString();
-//                String disease = response.body().getDisease();
                 String crop = response.body().getCrop();
-
                 String cause = response.body().getCause().toString();
-
                 String cure =   response.body().getCure().toString();
                 String disease =  response.body().getDisease();
-//                String disease_summary =  response.body().get().toString().isEmpty() ? "Not Available" :  response.body().getDisease();
-
                 String image = firebaseUri.toString();
                 System.out.println(crop + cause + disease + cure);
 
@@ -326,121 +294,3 @@ Button getLocation;
 
 
 
-
-//
-//import androidx.annotation.NonNull;
-//import androidx.appcompat.app.AppCompatActivity;
-//import androidx.core.app.ActivityCompat;
-//
-//import android.Manifest;
-//import android.annotation.SuppressLint;
-//import android.content.Context;
-//import android.content.Intent;
-//import android.content.pm.PackageManager;
-//import android.location.Address;
-//import android.location.Geocoder;
-//import android.location.Location;
-//import android.location.LocationManager;
-//import android.location.LocationRequest;
-//import android.os.Bundle;
-//import android.text.Html;
-//import android.text.TextUtils;
-//import android.util.Patterns;
-//import android.view.View;
-//import android.widget.Button;
-//import android.widget.EditText;
-//import android.widget.ProgressBar;
-//import android.widget.TextView;
-//import android.widget.Toast;
-//
-//import android.os.Bundle;
-//import android.view.View;
-//
-//import com.google.android.gms.location.FusedLocationProviderClient;
-//import com.google.android.gms.location.LocationServices;
-//import com.google.android.gms.tasks.OnCompleteListener;
-//import com.google.android.gms.tasks.Task;
-//
-//import java.io.IOException;
-//import java.util.List;
-//import java.util.Locale;
-//
-//public class ProfileActivity extends AppCompatActivity {
-//    Button bt_location;
-//    TextView textView1, textView2, textView3, textView4, textView5;
-//    FusedLocationProviderClient fusedLocationProviderClient;
-//
-//
-//    @Override
-//    protected void onCreate(Bundle savedInstanceState) {
-//        super.onCreate(savedInstanceState);
-//        setContentView(R.layout.activity_profile);
-//        // Assign values
-//        bt_location = findViewById(R.id.bt_location);
-//        textView1 = findViewById(R.id.text_view1);
-//        textView2 = findViewById(R.id.text_view2);
-//        textView3 = findViewById(R.id.text_view3);
-//        textView4 = findViewById(R.id.text_view4);
-//        textView5 = findViewById(R.id.text_view5);
-//
-//        // Initialize fusedLocationProvider
-//
-//        fusedLocationProviderClient = LocationServices.getFusedLocationProviderClient(this);
-//        bt_location.setOnClickListener(new View.OnClickListener() {
-//            @Override
-//            public void onClick(View v) {
-//
-//                if (ActivityCompat.checkSelfPermission(ProfileActivity.this, Manifest.permission.ACCESS_FINE_LOCATION) == PackageManager.PERMISSION_GRANTED) {
-//
-//                    getLocation();
-//
-//                } else {
-//                    ActivityCompat.requestPermissions(ProfileActivity.this, new String[]{Manifest.permission.ACCESS_FINE_LOCATION}, 44);
-//                }
-//
-//            }
-//        });
-//    }
-//
-//    @SuppressLint("MissingPermission")
-//    private void getLocation() {
-//        fusedLocationProviderClient.getLastLocation().addOnCompleteListener(new OnCompleteListener<Location>() {
-//            @Override
-//            public void onComplete(@NonNull Task<Location> task) {
-//                Location location = task.getResult();
-//                if (location != null) {
-//                      try {
-//                          Geocoder geocoder = new Geocoder(ProfileActivity.this, Locale.getDefault());
-//                          List<Address> addresses = geocoder.getFromLocation(location.getLatitude(), location.getLongitude(), 1);
-//
-//                          textView1.setText(Html.fromHtml("<font color='black><b>Latitude</b><br></font>"+addresses.get(0).getLatitude()
-//
-//                          ));
-//                          //set longitude
-//                          textView2.setText(Html.fromHtml("<font color='black><b>Longitude</b><br></font>"+addresses.get(0).getLongitude()
-//                          ));
-//
-//                          //set country name
-//                          textView3.setText(Html.fromHtml("<font color='black><b>Country</b><br></font>"+addresses.get(0).getCountryName()
-//                          ));
-//                          //set Locality
-//                          textView4.setText(Html.fromHtml("<font color='black><b>Locality</b><br></font>"+addresses.get(0).getLocality()
-//                          ));
-//                          //set address
-//                          textView5.setText(Html.fromHtml("<font color='black><b>Address</b><br></font>"+addresses.get(0).getAddressLine(0)
-//                          ));
-//
-//                    } catch (IOException e) {
-//                        e.printStackTrace();
-//                    }
-//
-//                }
-//            }
-//        });
-//
-//
-//    }
-//
-//
-//
-//}
