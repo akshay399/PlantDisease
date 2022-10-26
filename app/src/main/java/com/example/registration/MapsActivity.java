@@ -41,7 +41,7 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
         GoogleApiClient.OnConnectionFailedListener,
         LocationListener{
 
-
+//ss
     private GoogleMap mMap;
     private GoogleApiClient client;
     private LocationRequest locationRequest;

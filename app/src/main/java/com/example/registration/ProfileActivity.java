@@ -110,12 +110,6 @@ Button getLocation;
         });
 
 
-
-
-
-
-
-
         //capture button click
         mCaptureBtn.setOnClickListener(new View.OnClickListener() {
             @Override
